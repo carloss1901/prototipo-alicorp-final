@@ -3,6 +3,8 @@ dist/
 __pycache__/
 *.py[cod]
 backend/alicorp.db
+!backend/seed/
+!backend/seed/alicorp.db
 .venv/
 .venv313/
 .vercel/

@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import sqlite3
 import uuid
 from collections import defaultdict
@@ -16,12 +17,14 @@ from pydantic import BaseModel, Field
 
 
 ROOT = Path(__file__).resolve().parent
+IS_VERCEL = bool(os.environ.get("VERCEL"))
 # Vercel Functions only allow writes under /tmp.  Local development keeps the
 # SQLite file in backend/ so the existing workflow remains unchanged.
 DEFAULT_DATABASE = (
-    Path("/tmp/alicorp.db") if os.environ.get("VERCEL") else ROOT / "alicorp.db"
+    Path("/tmp/alicorp.db") if IS_VERCEL else ROOT / "alicorp.db"
 )
 DATABASE = Path(os.environ.get("ALICORP_DATABASE", DEFAULT_DATABASE))
+SEED_DATABASE = ROOT / "seed" / "alicorp.db"
 OLLAMA_BASE_URL = os.environ.get(
     "OLLAMA_BASE_URL", "http://127.0.0.1:11434"
 ).rstrip("/")
@@ -109,6 +112,13 @@ def connect() -> sqlite3.Connection:
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     return connection
+
+
+def restore_deployment_seed() -> None:
+    """Initialise a fresh Vercel instance from the local demonstration data."""
+    if IS_VERCEL and not DATABASE.exists() and SEED_DATABASE.exists():
+        DATABASE.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(SEED_DATABASE, DATABASE)
 
 
 def initialize_database() -> None:
@@ -557,6 +567,7 @@ class AssistantChatRequest(BaseModel):
     messages: list[AssistantMessage] = Field(min_length=1, max_length=16)
 
 
+restore_deployment_seed()
 initialize_database()
 
 

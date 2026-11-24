@@ -63,11 +63,13 @@ En Vercel usa `npm run build` como comando de compilación y `dist` como directo
 de salida. La API quedará en la misma URL, bajo `/api`, por lo que no requiere una
 variable de URL adicional ni cambios de CORS.
 
-La base SQLite local no puede persistir en Vercel: allí se crea temporalmente en
-`/tmp/alicorp.db` y se reinicia cuando la Function se recicla. Este modo sirve para
-una demostración publicada. Para conservar pedidos, inventario y notificaciones en
-producción hay que migrar el almacenamiento a una base PostgreSQL administrada y
-configurar sus credenciales como variables de entorno de Vercel.
+La instantánea `backend/seed/alicorp.db` se publica con el proyecto. En una instancia
+nueva, Vercel la copia a `/tmp/alicorp.db`, por lo que la demostración comienza con
+los pedidos, entregas, inventario y notificaciones existentes en la base local al
+momento de desplegar. Los cambios realizados desde la web publicada se reinician
+cuando la Function se recicla. Para conservar datos nuevos en producción hay que
+migrar el almacenamiento a una base PostgreSQL administrada y configurar sus
+credenciales como variables de entorno de Vercel.
 
 Las actualizaciones por WebSocket se desactivan automáticamente en producción y la
 interfaz conserva la actualización de respaldo cada 30 segundos. El asistente basado
