@@ -43,6 +43,11 @@ const CURRENCY = new Intl.NumberFormat("es-PE", {
   currency: "PEN",
 });
 
+// Vercel Functions do not provide a persistent WebSocket server. Production
+// deployments use the existing 30-second refresh as their update mechanism.
+const WEBSOCKETS_ENABLED =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_WEBSOCKET === "true";
+
 async function api(path, options = {}) {
   const response = await fetch(`/api${path}`, {
     ...options,
@@ -168,6 +173,11 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    if (!WEBSOCKETS_ENABLED) {
+      const fallback = window.setInterval(refresh, 30000);
+      return () => window.clearInterval(fallback);
+    }
+
     let reconnectTimer;
     let socket;
     let stopped = false;

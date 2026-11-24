@@ -50,6 +50,30 @@ Los pedidos, cambios de inventario, entregas y notificaciones se guardan en
 La base se crea automáticamente y se conserva entre reinicios; para el uso normal,
 no configures la variable opcional `ALICORP_DATABASE`.
 
+## Despliegue de demostración en Vercel
+
+El repositorio incluye la configuración para desplegar la interfaz Vite y la API
+FastAPI en el mismo proyecto de Vercel. Desde la raíz, ejecuta:
+
+```powershell
+npx vercel
+```
+
+En Vercel usa `npm run build` como comando de compilación y `dist` como directorio
+de salida. La API quedará en la misma URL, bajo `/api`, por lo que no requiere una
+variable de URL adicional ni cambios de CORS.
+
+La base SQLite local no puede persistir en Vercel: allí se crea temporalmente en
+`/tmp/alicorp.db` y se reinicia cuando la Function se recicla. Este modo sirve para
+una demostración publicada. Para conservar pedidos, inventario y notificaciones en
+producción hay que migrar el almacenamiento a una base PostgreSQL administrada y
+configurar sus credenciales como variables de entorno de Vercel.
+
+Las actualizaciones por WebSocket se desactivan automáticamente en producción y la
+interfaz conserva la actualización de respaldo cada 30 segundos. El asistente basado
+en Ollama sigue siendo una función local; requiere un servicio Ollama accesible desde
+Internet para funcionar en Vercel.
+
 ## Módulos incluidos
 
 - Interfaz adaptable a móviles, tablets y escritorio; navegación desplazable,

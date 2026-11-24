@@ -16,7 +16,12 @@ from pydantic import BaseModel, Field
 
 
 ROOT = Path(__file__).resolve().parent
-DATABASE = Path(os.environ.get("ALICORP_DATABASE", ROOT / "alicorp.db"))
+# Vercel Functions only allow writes under /tmp.  Local development keeps the
+# SQLite file in backend/ so the existing workflow remains unchanged.
+DEFAULT_DATABASE = (
+    Path("/tmp/alicorp.db") if os.environ.get("VERCEL") else ROOT / "alicorp.db"
+)
+DATABASE = Path(os.environ.get("ALICORP_DATABASE", DEFAULT_DATABASE))
 OLLAMA_BASE_URL = os.environ.get(
     "OLLAMA_BASE_URL", "http://127.0.0.1:11434"
 ).rstrip("/")
